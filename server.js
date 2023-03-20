@@ -8,19 +8,30 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
-const rooms = {};
+const rooms = { name: {} };
 // rooms can be enable private or mulicute communication between nodes
 const users = {};
 
 app.get("/", (req, res) => {
-  res.render("index", { rooms: rooms });
+  return res.render("index", { rooms: rooms });
+});
+
+app.post("/room", (req, res) => {
+  if (rooms[req.body.room] != null) {
+    return res.redirect("/");
+  }
+  rooms[req.body.room] = { users: {} };
+  res.redirect(req.body.room);
+  return io.emit("room-created", req.body.room);
 });
 
 app.get("/:room", (req, res) => {
-  res.render("room", { roomName: req.params.room });
+  // console.log(rooms[req.params.room]);
+  if (!rooms[req.params.room]) {
+    return res.redirect("/");
+  }
+  return res.render("room", { roomName: req.params.room });
 });
-
-server.listen(3000);
 
 io.on("connection", (socket) => {
   socket.on("new-user", (name) => {
@@ -39,3 +50,5 @@ io.on("connection", (socket) => {
     delete users[socket.id];
   });
 });
+
+server.listen(3000);
