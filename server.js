@@ -3,13 +3,14 @@ const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
 
-app.set("views", "./views");
+app.set("views", "views");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
 const rooms = {};
 // rooms can be enable private or mulicute communication between nodes
+const users = {};
 
 app.get("/", (req, res) => {
   res.render("index", { rooms: rooms });
