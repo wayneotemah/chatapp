@@ -8,11 +8,12 @@ const roomContainer = document.getElementById("room-container");
 if (messageForm) {
   const username = prompt("What is your name?");
   appendMessage("You joined");
-  socket.emit("new-user", username);
+
+  socket.emit("new-user", roomName, username);
   messageForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const message = messageInput.value;
-    socket.emit("send-chat-message", message);
+    socket.emit("send-chat-message", roomName, message);
     appendMessage(`You: ${message}`);
     messageInput.value = "";
   });
@@ -37,7 +38,7 @@ socket.on("room-created", (room) => {
   roomLink.href = `/${room}`;
   roomLink.innerText = "Join";
   roomContainer.append(roomElement);
-  roomContainer.append(roomLink); 
+  roomContainer.append(roomLink);
 });
 
 function appendMessage(message) {
