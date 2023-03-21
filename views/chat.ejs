@@ -32,27 +32,20 @@
                 </div>
             </div>
             <!-- CHAT LIST-->
-            <div class="chatlist">
+            <div class="chatlist" id="room-container">
                 <% Object.keys(rooms).forEach(room => { %>
-                    <!-- TODO EJS formatting got if condition -->
+                    <% if (room != roomName) { %>
                         <div class="block active">
-                            <!-- <div class="imgBox">
-                                <img src="images/img1.jpg" class="cover"  alt="">
-                            </div> -->
                             <div class="details">
                                 <div class="listHead">
-                                    <!-- <div><%= room %></div> -->
                                     <h4><%= room %></h4>
-                                    <!-- <p class="time">10:56</p> -->
                                 </div>
-                                <!-- <div class="message_p">
-                                    <p>How are you doing?</p>
-                                </div> -->
                             </div>
                         </div>
-                    <% }) %>                    
-                  </div>
-           </div>
+                    <% } %>                       
+                <% }) %>                    
+            </div>
+        </div>
         <div class="rightSide">
             <div class="header">
                 <div class="imgText">
@@ -67,7 +60,7 @@
                 </ul>
             </div> 
             <!-- CHAT-BOX --> 
-            <div class="chatbox">
+            <div class="chatbox" id="message-container">
                 <div class="message my_msg">
                     <p>Hi <br><span>12:18</span></p>
                 </div>
@@ -94,12 +87,15 @@
                 </div>
             </div>
             <!-- CHAT INPUT -->
-            <div class="chat_input">
-            <ion-icon name="happy-outline"></ion-icon>
-            <!--<ion-icon name="happy-outline"></ion-icon>-->
-            <input type="text" placeholder="Type a message">
-            <ion-icon name="mic"></ion-icon>
-            </div>
+            <form id="send-container">
+                <div class="chat_input">
+                    <!-- <ion-icon name="happy-outline"></ion-icon> -->
+                    <input type="text" placeholder="Type a message" id="message-input">
+                    <button type="submit" id="send-button" style="border: none;">
+                        <ion-icon name="send" click> </ion-icon>
+                    </button>
+                </div>
+            </form>
 
 
         </div>

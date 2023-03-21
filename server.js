@@ -25,7 +25,6 @@ app.post("/room", (req, res) => {
 });
 
 app.get("/:room", (req, res) => {
-  // console.log(rooms[req.params.room])
   if (!rooms[req.params.room]) {
     return res.redirect("/");
   }
