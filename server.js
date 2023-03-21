@@ -8,7 +8,7 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
-const rooms = { name: "Egesa" };
+const rooms = {};
 // rooms can be enable private or mulicute communication between nodes
 
 app.get("/", (req, res) => {
@@ -29,7 +29,7 @@ app.get("/:room", (req, res) => {
   if (!rooms[req.params.room]) {
     return res.redirect("/");
   }
-  res.render("room", { roomName: req.params.room });
+  res.render("chat", { roomName: req.params.room, rooms: rooms });
 });
 
 server.listen(3000);

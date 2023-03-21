@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whatsapp UI clone</title>
     <link rel="stylesheet" href="style.css">
+    <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script defer src="script.js"></script>
 </head>
 <body>
@@ -15,7 +16,7 @@
             
             <div class="header">
                 <div class="userimg">
-                   <img src="images/user.jpg" alt="" class="cover"> 
+                    <img src="images/user.jpg" alt="" class="cover"> 
                 </div>
                 <ul class="nav_icons">
                     <li><ion-icon name="scan-circle-outline"></ion-icon></li>
@@ -24,16 +25,16 @@
                 </ul>
             </div>
             <!-- Search Chat -->
-                <div class="search_chat">
-                    <div>
-                        <input type="text" placeholder="Search or start new chat">
-                        <ion-icon name="search-outline"></ion-icon>
-                    </div>
-                  </div>
-                  <!-- CHAT LIST-->
-                  <div class="chatlist">
-                    <% Object.keys(rooms).forEach(room => { %>
-                        <!-- <a href="/<%= room %>">Join</a> -->
+            <div class="search_chat">
+                <div>
+                    <input type="text" placeholder="Search or start new chat">
+                    <ion-icon name="search-outline"></ion-icon>
+                </div>
+            </div>
+            <!-- CHAT LIST-->
+            <div class="chatlist">
+                <% Object.keys(rooms).forEach(room => { %>
+                    <!-- TODO EJS formatting got if condition -->
                         <div class="block active">
                             <!-- <div class="imgBox">
                                 <img src="images/img1.jpg" class="cover"  alt="">
@@ -49,10 +50,7 @@
                                 </div> -->
                             </div>
                         </div>
-                    <% }) %>
-                    
-
-                    
+                    <% }) %>                    
                   </div>
            </div>
         <div class="rightSide">
