@@ -8,11 +8,11 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 
-const rooms = {};
+const rooms = { name: "Egesa" };
 // rooms can be enable private or mulicute communication between nodes
 
 app.get("/", (req, res) => {
-  res.render("index", { rooms: rooms });
+  res.render("detailsform", { rooms: rooms });
 });
 
 app.post("/room", (req, res) => {
