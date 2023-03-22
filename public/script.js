@@ -3,19 +3,22 @@ const messageContainer = document.getElementById("message-container");
 const roomContainer = document.getElementById("room-container");
 const messageForm = document.getElementById("send-container");
 const messageInput = document.getElementById("message-input");
+const usernameForm = document.getElementById("getUserName");
 
 if (messageForm != null) {
-  // const name = prompt('What is your name?')
-  // appendMessage('You joined')
-
-  // socket.emit('new-user', roomName, name)
-
   messageForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const message = messageInput.value;
     appendMessage(`You: ${message}`);
     socket.emit("send-chat-message", roomName, message);
     messageInput.value = "";
+  });
+}
+
+if (usernameForm) {
+  usernameForm.addEventListener("submit", (e) => {
+    const message = document.querySelector('input[name="room"]').value;
+    socket.emit("new-user", message);
   });
 }
 
@@ -32,7 +35,9 @@ socket.on("user-connected", (name) => {
 });
 
 socket.on("user-disconnected", (name) => {
-  appendMessage(`${name} disconnected`);
+  alert("user disconnected");
+  const elementToRemove = document.getElementById(name);
+  elementToRemove.style.display = "none";
 });
 
 function appendMessage(message) {
@@ -41,11 +46,11 @@ function appendMessage(message) {
   messageContainer.append(messageElement);
 }
 
-function appendUserJoinMessage(message) {
-  roomContainer.innerHTML += `<div class="block active">
+function appendUserJoinMessage(name) {
+  roomContainer.innerHTML += `<div id = "${name}" class="block active">
                                 <div class="details">
                                     <div class="listHead">
-                                      <h4>${message}</h4>
+                                      <h4>${name}</h4>
                                     </div>
                                 </div>
                               </div>`;

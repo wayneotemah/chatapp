@@ -12,7 +12,7 @@ const rooms = {};
 // rooms can be enable private or mulicute communication between nodes
 
 app.get("/", (req, res) => {
-  res.render("detailsform", { rooms: rooms });
+  res.render("detailsform");
 });
 
 app.post("/room", (req, res) => {
@@ -34,22 +34,25 @@ app.get("/:room", (req, res) => {
 server.listen(3000);
 
 io.on("connection", (socket) => {
-  socket.on("new-user", (room, name) => {
-    console.log(room);
-    socket.join(room);
-    rooms[room].users[socket.id] = name;
-    socket.to(room).emit("user-connected", name); //or socket.broadcast.to(room).emit("user-connected", name)
+  socket.on("new-user", ( name) => {
+    console.log(rooms);
+    // socket.join(room);
+    // rooms[room].users[socket.id] = name;
+    socket.emit("user-connected", name); //or socket.broadcast.to(room).emit("user-connected", name)
     console.log(`${name} connected`);
   });
+
   socket.on("send-chat-message", (room, message) => {
     socket.to(room).emit("chat-message", {
       message: message,
       name: rooms[room].users[socket.id],
     });
   });
+
   socket.on("disconnect", () => {
     getUserRooms(socket).forEach((room) => {
-      socket.to(room).emit("user-disconnected", rooms[room].users[socket.id]);
+      console.log(rooms[room].users[socket.id]);
+      socket.broadcast.emit("user-disconnected", rooms[room].users[socket.id]);
       delete rooms[room].users[socket.id];
     });
   });
