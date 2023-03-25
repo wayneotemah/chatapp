@@ -14,8 +14,9 @@ if (messageForm != null) {
     messageInput.value = "";
   });
 }
-
+console.log(usernameForm);
 if (usernameForm) {
+  const usernameForm = document.getElementById("getUserName");
   usernameForm.addEventListener("submit", (e) => {
     const message = document.querySelector('input[name="room"]').value;
     socket.emit("new-user", message);
