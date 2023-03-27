@@ -12,25 +12,30 @@ if (messageForm != null) {
   messageForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const message = messageInput.value;
-    appendMessage(`You: ${message}`);
-    socket.emit("send-chat-message", roomName, message);
+    socket.emit(
+      "send-chat-message",
+      document.querySelector("#receiver").textContent,
+      message,
+      localStorage.getItem("sessionId")
+    );
     messageInput.value = "";
+
+    messageContainer.innerHTML += `<div class="message my_msg">
+                                    <p>${message} <br /><span>12:18</span></p>
+                                  </div>`;
   });
 }
-// if (usernameForm) {
-//   const usernameForm = document.getElementById("getUserName");
-//   usernameForm.addEventListener("submit", (e) => {
-//     const message = document.querySelector('input[name="room"]').value;
-//     socket.emit("new-user", message);
-//   });
-// }
 
 socket.on("room-created", (room) => {
   appendUserJoinMessage(room);
 });
 
 socket.on("chat-message", (data) => {
-  appendMessage(`${data.name}: ${data.message}`);
+  if (data.name == document.querySelector("#receiver").textContent) {
+    appendMessage(`${data.message}`);
+  } else {
+    alert(`${data.name} wants to chat with you`);
+  }
 });
 
 socket.on("user-connected", (name, rooms) => {
@@ -64,9 +69,9 @@ socket.on("user-disconnected", (name, users) => {
 });
 
 function appendMessage(message) {
-  const messageElement = document.createElement("div");
-  messageElement.innerText = message;
-  messageContainer.append(messageElement);
+  messageContainer.innerHTML += `<div class="message friend_msg">
+                                  <p>${message} <br /><span>12:18</span></p>
+                                </div>`;
 }
 
 function appendUserJoinMessage(name) {
@@ -76,5 +81,14 @@ function appendUserJoinMessage(name) {
                                       <h4>${name}</h4>
                                     </div>
                                 </div>
-                              </div>`;
+                              </div>
+                              `;
+  [...document.querySelectorAll(".chatlist .block")].forEach((block) => {
+    block.addEventListener("click", (e) => {
+      // console.log(e.target.textContent.trim());
+      document.querySelector("#receiver").textContent =
+        e.target.textContent.trim();
+      alert(e.target.id);
+    });
+  });
 }

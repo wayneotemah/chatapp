@@ -102,10 +102,10 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("send-chat-message", (room, message) => {
-    socket.to(room).emit("chat-message", {
+  socket.on("send-chat-message", (receiver, message, sender) => {
+    socket.to(users[receiver]).emit("chat-message", {
       message: message,
-      name: users[socket.id],
+      name: removePairsByValue(users, sender),
     });
   });
 
