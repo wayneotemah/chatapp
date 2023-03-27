@@ -34,7 +34,7 @@ socket.on("chat-message", (data) => {
   if (data.name == document.querySelector("#receiver").textContent) {
     appendMessage(`${data.message}`);
   } else {
-    alert(`${data.name} wants to chat with you`);
+    notifications(data.message, data.name);
   }
 });
 
@@ -67,8 +67,18 @@ socket.on("user-disconnected", (name, users) => {
   elementToRemove.remove();
 });
 
-function appendMessage(message) {
-  messageContainer.innerHTML += `<div class="message friend_msg">
+socket.on("messages-response", (messages) => {
+  messages.forEach((message) => {
+    if (message.sender == document.getElementById("username").textContent) {
+      appendMessage(message.message, (tag = "my_msg"));
+    } else {
+      appendMessage(message.message, (tag = "friend_msg"));
+    }
+  });
+});
+
+function appendMessage(message, tag = "friend_msg") {
+  messageContainer.innerHTML += `<div class="message ${tag}">
                                   <p>${message} <br /><span>12:18</span></p>
                                 </div>`;
 }
@@ -84,10 +94,32 @@ function appendUserJoinMessage(name) {
                               `;
   [...document.querySelectorAll(".chatlist .block")].forEach((block) => {
     block.addEventListener("click", (e) => {
-      // console.log(e.target.textContent.trim());
       document.querySelector("#receiver").textContent =
         e.target.textContent.trim();
-      alert(e.target.id);
+      socket.emit(
+        "messages-request",
+        document.getElementById("username").textContent,
+        e.target.textContent.trim()
+      );
+      messageContainer.innerHTML = "";
     });
   });
+}
+
+function notifications(message, sender) {
+  if (Notification.permission === "granted") {
+    const notification = new Notification(`New Message From ${sender}`, {
+      body: message,
+      icon: "path/to/notification-icon.png",
+    });
+  } else if (Notification.permission !== "denied") {
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        const notification = new Notification(`New Message From ${sender}`, {
+          body: message,
+          icon: "path/to/notification-icon.png",
+        });
+      }
+    });
+  }
 }

@@ -33,6 +33,7 @@ const rooms = {};
 // rooms can be enable private or mulicute communication between nodes
 
 const users = {};
+const messages = {};
 
 const authMiddleWare = (req, res, next) => {
   if (req.session.name) {
@@ -52,11 +53,6 @@ app.post("/room", (req, res) => {
   }
 
   req.session.name = req.body.room;
-
-  // rooms[req.body.room] = { users: {} };
-  // io.emit('room-created', req.body.room);
-  // io.emit('new-user', req.body.room);
-
   res.redirect("/dashboard");
 });
 
@@ -99,22 +95,44 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send-chat-message", (receiver, message, sender) => {
+    const senderName = getNameBySocketId(users, sender);
+    const [name1, name2] = [receiver, senderName].sort();
+    const roomName = `${name1}-${name2}`;
+
+    // Create the room's message array if it doesn't exist
+    if (!messages[roomName]) {
+      messages[roomName] = [];
+    }
+
+    // Add the message to the room's message array
+    messages[roomName].push({
+      sender: senderName,
+      receiver: receiver,
+      message: message,
+      timestamp: new Date(),
+    });
+
     socket.to(users[receiver]).emit("chat-message", {
       message: message,
-      name: removePairsByValue(users, sender),
+      name: senderName,
     });
   });
 
-  socket.on("disconnect", () => {
-    const key = removePairsByValue(users, socket.id);
-    delete users[key];
-    console.log(key);
-    io.sockets.emit("user-disconnected", key, users);
+  socket.on("messages-request", (sender, receiver) => {
+    const [name1, name2] = [sender, receiver].sort();
+    const roomName = `${name1}-${name2}`;
 
-    // getUserRooms(socket).forEach((room) => {
-    //
-    //   delete users[socket.id];
-    // });
+    io.to(users[sender]).emit(
+      "messages-response",
+      messages[roomName] ? messages[roomName] : []
+    );
+  });
+
+  socket.on("disconnect", () => {
+    const key = getNameBySocketId(users, socket.id);
+    delete users[key];
+
+    io.sockets.emit("user-disconnected", key, users);
   });
 });
 
@@ -127,7 +145,7 @@ function getUserBySessionId(sessionId) {
   return null;
 }
 
-function removePairsByValue(obj, value) {
+function getNameBySocketId(obj, value) {
   for (let key in obj) {
     if (obj.hasOwnProperty(key) && obj[key] === value) {
       return key;
