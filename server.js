@@ -42,8 +42,8 @@ app.post("/room", (req, res) => {
 
 app.get("/dashboard", (req, res) => {
   username = req.session.name;
-  // console.log(`this is the roomName ${username}`);
-  res.render("chat", { rooms: rooms, roomName: username });
+  //
+  res.render("chat", { rooms: users, roomName: username });
 });
 
 app.get("/:room", (req, res) => {
@@ -57,11 +57,12 @@ server.listen(3000);
 
 io.on("connection", (socket) => {
   socket.on("new-user", (name) => {
-    console.log("rooms: ", users);
     // socket.join(room);
     users[name] = socket.id;
-    socket.emit("user-connected", name); //or socket.broadcast.to(room).emit("user-connected", name)
-    console.log(`${name} connected`);
+    // socket.broadcast.emit("user-connected", name, users); //or socket.broadcast.to(room).emit("user-connected", name)
+    io.sockets.emit("user-connected", name, users);
+    // socket.emit("user-connected", name, users); //or socket.broadcast.to(room).emit("user-connected", name)
+    //
   });
 
   socket.on("send-chat-message", (room, message) => {
@@ -72,22 +73,29 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("disconnect: ", users);
-    console.log("disconnected: ", users[socket.id]);
-    // delete users[socket.id];
-    console.log("after disconnect: ", users);
+    const key = removePairsByValue(users, socket.id);
+    delete users[key];
+    io.sockets.emit("user-disconnected", key, users);
 
     // getUserRooms(socket).forEach((room) => {
-    //   console.log(users[socket.id]);
-    //   socket.broadcast.emit("user-disconnected", users[socket.id]);
+    //
     //   delete users[socket.id];
     // });
   });
 });
 
-// function getUserRooms(socket) {
-//   return Object.entries(users).reduce((names, [socketId, username]) => {
+// function getUser(socket) {
+
+//   return Object.entries(reversedObject).reduce((names, [socketId, username]) => {
 //     if (users[socket.id]) names.push(username);
 //     return names;
 //   }, []);
 // }
+
+function removePairsByValue(obj, value) {
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key) && obj[key] === value) {
+      return key;
+    }
+  }
+}
