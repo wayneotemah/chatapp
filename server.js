@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 const sessionMiddleware = session({
   secret: "my-secret",
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
 });
 
 io.use((socket, next) => {
@@ -62,6 +62,10 @@ app.post("/room", (req, res) => {
 
 app.get("/dashboard", (req, res) => {
   const username = req.session.name;
+  if (!username) {
+    return res.redirect("login");
+  }
+  console.log(req.session.name);
   //
   res.render("chat", { rooms: users, roomName: username });
 });
@@ -108,7 +112,6 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     const key = removePairsByValue(users, socket.id);
     delete users[key];
-    console.log(key);
     io.sockets.emit("user-disconnected", key, users);
 
     // getUserRooms(socket).forEach((room) => {
