@@ -44,6 +44,19 @@ socket.on("user-connected", (name, rooms) => {
   });
 });
 
+socket.on("connect", () => {
+  const sessionId = localStorage.getItem("sessionId");
+  if (sessionId) {
+    socket.emit("reconnect-user", sessionId);
+  } else {
+    socket.emit("new-user", name);
+  }
+});
+
+socket.on("store-session", (sessionId) => {
+  localStorage.setItem("sessionId", sessionId);
+});
+
 socket.on("user-disconnected", (name, users) => {
   const elementToRemove = document.getElementById(name);
   elementToRemove.remove();
