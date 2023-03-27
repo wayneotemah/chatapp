@@ -1,108 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Whatsapp UI clone</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script defer src="script.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="leftSide">
-            <!-- Header -->
-            
-            <div class="header">
-                <div class="userimg">
-                    <img src="images/user.jpg" alt="" class="cover"> 
-                </div>
-                <ul class="nav_icons">
-                    <li><ion-icon name="scan-circle-outline"></ion-icon></li>
-                    <li><ion-icon name="chatbox"></ion-icon></li>
-                    <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
-                </ul>
-            </div>
-            <!-- Search Chat -->
-            <div class="search_chat">
-                <div>
-                    <input type="text" placeholder="Search or start new chat">
-                    <ion-icon name="search-outline"></ion-icon>
-                </div>
-            </div>
-            <!-- CHAT LIST-->
-            <div class="chatlist" id="room-container">
-                <% Object.keys(rooms).forEach(room => { %>
-                    <% if (room != roomName) { %>
-                        <div class="block active">
-                            <div class="details">
-                                <div class="listHead">
-                                    <h4><%= room %></h4>
-                                </div>
-                            </div>
-                        </div>
-                    <% } %>                       
-                <% }) %>                    
-            </div>
-        </div>
-        <div class="rightSide">
-            <div class="header">
-                <div class="imgText">
-                    <div class="userimg">
-                        <img src="images/img1.jpg" alt="" class="cover">
-                    </div>
-                    <h4>Qazi <br><span>online</span></h4>
-                </div>
-                <ul class="nav_icons">
-                    <li><ion-icon name="search-outline"></ion-icon></li>
-                    <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
-                </ul>
-            </div> 
-            <!-- CHAT-BOX --> 
-            <div class="chatbox" id="message-container">
-                <div class="message my_msg">
-                    <p>Hi <br><span>12:18</span></p>
-                </div>
-                <div class="message friend_msg">
-                    <p>Hey <br><span>12:18</span></p>
-                </div>
-                <div class="message my_msg">
-                    <p>How are you? <br><span>12:18</span></p>
-                </div>
-                <div class="message friend_msg">
-                    <p>Very Well Thank You! How about You? <br><span>12:18</span></p>
-                </div>
-                <div class="message my_msg">
-                    <p>I'm alright! Have you subscribed to my Youtube? <br><span>12:18</span></p>
-                </div>
-                <div class="message friend_msg">
-                    <p>Yes, I do <br><span>12:18</span></p>
-                </div>
-                <div class="message my_msg">
-                    <p>Good to know. Stay tuned for better content! <br><span>12:18</span></p>
-                </div>
-                <div class="message friend_msg">
-                    <p>Alright <br><span>12:18</span></p>
-                </div>
-            </div>
-            <!-- CHAT INPUT -->
-            <form id="send-container">
-                <div class="chat_input">
-                    <!-- <ion-icon name="happy-outline"></ion-icon> -->
-                    <input type="text" placeholder="Type a message" id="message-input">
-                    <button type="submit" id="send-button" style="border: none;">
-                        <ion-icon name="send" click> </ion-icon>
-                    </button>
-                </div>
-            </form>
+      <div class="leftSide">
+        <div id="username"><%= roomName %></div>
+        <!-- Header -->
 
-
+        <div class="header">
+          <div class="userimg">
+            <img src="images/user.jpg" alt="" class="cover" />
+          </div>
+          <ul class="nav_icons">
+            <li><ion-icon name="scan-circle-outline"></ion-icon></li>
+            <li><ion-icon name="chatbox"></ion-icon></li>
+            <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+          </ul>
         </div>
+        <!-- Search Chat -->
+        <div class="search_chat">
+          <div>
+            <input type="text" placeholder="Search or start new chat" />
+            <ion-icon name="search-outline"></ion-icon>
+          </div>
+        </div>
+        <!-- CHAT LIST-->
+        <div class="chatlist" id="room-container">
+          <% Object.keys(rooms).forEach(room => { %> <% if (room != roomName) {
+          %>
+          <div class="block active">
+            <div class="details">
+              <div class="listHead">
+                <h4><%= room %></h4>
+              </div>
+            </div>
+          </div>
+          <% } %> <% }) %>
+        </div>
+      </div>
+      <div class="rightSide">
+        <div class="header">
+          <div class="imgText">
+            <div class="userimg">
+              <img src="images/img1.jpg" alt="" class="cover" />
+            </div>
+            <h4>Qazi <br /><span>online</span></h4>
+          </div>
+          <ul class="nav_icons">
+            <li><ion-icon name="search-outline"></ion-icon></li>
+            <li><ion-icon name="ellipsis-vertical"></ion-icon></li>
+          </ul>
+        </div>
+        <!-- CHAT-BOX -->
+        <div class="chatbox" id="message-container">
+          <div class="message my_msg">
+            <p>Hi <br /><span>12:18</span></p>
+          </div>
+          <div class="message friend_msg">
+            <p>Hey <br /><span>12:18</span></p>
+          </div>
+          <div class="message my_msg">
+            <p>How are you? <br /><span>12:18</span></p>
+          </div>
+          <div class="message friend_msg">
+            <p>Very Well Thank You! How about You? <br /><span>12:18</span></p>
+          </div>
+          <div class="message my_msg">
+            <p>
+              I'm alright! Have you subscribed to my Youtube? <br /><span
+                >12:18</span
+              >
+            </p>
+          </div>
+          <div class="message friend_msg">
+            <p>Yes, I do <br /><span>12:18</span></p>
+          </div>
+          <div class="message my_msg">
+            <p>
+              Good to know. Stay tuned for better content! <br /><span
+                >12:18</span
+              >
+            </p>
+          </div>
+          <div class="message friend_msg">
+            <p>Alright <br /><span>12:18</span></p>
+          </div>
+        </div>
+        <!-- CHAT INPUT -->
+        <form id="send-container">
+          <div class="chat_input">
+            <!-- <ion-icon name="happy-outline"></ion-icon> -->
+            <input
+              type="text"
+              placeholder="Type a message"
+              id="message-input"
+            />
+            <button type="submit" id="send-button" style="border: none">
+              <ion-icon name="send" click> </ion-icon>
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
+    <script>
 
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-</body>     
+    </script>
+  </body>
 </html>

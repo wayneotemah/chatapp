@@ -1,4 +1,6 @@
 const express = require("express");
+const session = require("express-session");
+
 const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
@@ -7,6 +9,13 @@ app.set("views", "views");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 const rooms = {};
 // rooms can be enable private or mulicute communication between nodes
@@ -21,14 +30,20 @@ app.post("/room", (req, res) => {
   if (rooms[req.body.room] != null) {
     return res.redirect("/");
   }
+
+  req.session.name = req.body.room;
+
   // rooms[req.body.room] = { users: {} };
   // io.emit("room-created", req.body.room);
   // io.emit("new-user", req.body.room);
+
   res.redirect("/dashboard");
 });
 
 app.get("/dashboard", (req, res) => {
-  res.render("chat", { rooms: rooms, roomName: "Egesa" });
+  username = req.session.name;
+  // console.log(`this is the roomName ${username}`);
+  res.render("chat", { rooms: rooms, roomName: username });
 });
 
 app.get("/:room", (req, res) => {
@@ -44,7 +59,7 @@ io.on("connection", (socket) => {
   socket.on("new-user", (name) => {
     console.log("rooms: ", users);
     // socket.join(room);
-    users[socket.id] = name;
+    users[name] = socket.id;
     socket.emit("user-connected", name); //or socket.broadcast.to(room).emit("user-connected", name)
     console.log(`${name} connected`);
   });

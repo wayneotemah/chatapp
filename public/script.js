@@ -6,6 +6,9 @@ const messageInput = document.getElementById("message-input");
 const usernameForm = document.getElementById("getUserName");
 
 if (messageForm != null) {
+  username = document.getElementById("username").textContent;
+  socket.emit("new-user", username);
+
   messageForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const message = messageInput.value;
@@ -14,14 +17,13 @@ if (messageForm != null) {
     messageInput.value = "";
   });
 }
-console.log(usernameForm);
-if (usernameForm) {
-  const usernameForm = document.getElementById("getUserName");
-  usernameForm.addEventListener("submit", (e) => {
-    const message = document.querySelector('input[name="room"]').value;
-    socket.emit("new-user", message);
-  });
-}
+// if (usernameForm) {
+//   const usernameForm = document.getElementById("getUserName");
+//   usernameForm.addEventListener("submit", (e) => {
+//     const message = document.querySelector('input[name="room"]').value;
+//     socket.emit("new-user", message);
+//   });
+// }
 
 socket.on("room-created", (room) => {
   appendUserJoinMessage(room);
