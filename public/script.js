@@ -52,6 +52,7 @@ socket.on("user-connected", (name, rooms) => {
 socket.on("connect", () => {
   const sessionId = localStorage.getItem("sessionId");
   if (sessionId) {
+    alert(sessionId)
     socket.emit("reconnect-user", sessionId);
   } else {
     socket.emit("new-user", name);
