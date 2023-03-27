@@ -57,4 +57,7 @@ function appendUserJoinMessage(name) {
                                     </div>
                                 </div>
                               </div>`;
+
+
+                              
 }
