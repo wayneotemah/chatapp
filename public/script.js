@@ -13,17 +13,15 @@ if (messageForm != null) {
     e.preventDefault();
     const message = messageInput.value;
     appendMessage(`You: ${message}`);
-    socket.emit("send-chat-message", roomName, message);
+    socket.emit(
+      "send-chat-message",
+      document.querySelector("#receiver").textContent,
+      message,
+      localStorage.getItem("sessionId")
+    );
     messageInput.value = "";
   });
 }
-// if (usernameForm) {
-//   const usernameForm = document.getElementById("getUserName");
-//   usernameForm.addEventListener("submit", (e) => {
-//     const message = document.querySelector('input[name="room"]').value;
-//     socket.emit("new-user", message);
-//   });
-// }
 
 socket.on("room-created", (room) => {
   appendUserJoinMessage(room);
@@ -68,6 +66,11 @@ function appendMessage(message) {
   messageContainer.append(messageElement);
 }
 
+function alertMessage(e) {
+  // alert(e.target.querySelector(".details .listHead h4").textContent);
+  alert("hello");
+}
+
 function appendUserJoinMessage(name) {
   roomContainer.innerHTML += `<div id = "${name}" class="block active">
                                 <div class="details">
@@ -75,5 +78,14 @@ function appendUserJoinMessage(name) {
                                       <h4>${name}</h4>
                                     </div>
                                 </div>
-                              </div>`;
+                              </div>
+                              `;
+  [...document.querySelectorAll(".chatlist .block")].forEach((block) => {
+    block.addEventListener("click", (e) => {
+      // console.log(e.target.textContent.trim());
+      document.querySelector("#receiver").textContent =
+        e.target.textContent.trim();
+      alert(e.target.id);
+    });
+  });
 }
