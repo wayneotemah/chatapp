@@ -33,14 +33,20 @@ socket.on("chat-message", (data) => {
   appendMessage(`${data.name}: ${data.message}`);
 });
 
-socket.on("user-connected", (name) => {
-  appendUserJoinMessage(`${name}`);
+socket.on("user-connected", (name, rooms) => {
+  roomContainer.innerHTML = "";
+  Object.keys(rooms).forEach((room) => {
+    if (room != document.getElementById("username").textContent) {
+      if (!document.querySelector(`#${room}`)) {
+        appendUserJoinMessage(`${room}`);
+      }
+    }
+  });
 });
 
-socket.on("user-disconnected", (name) => {
-  alert("user disconnected");
+socket.on("user-disconnected", (name, users) => {
   const elementToRemove = document.getElementById(name);
-  elementToRemove.style.display = "none";
+  elementToRemove.remove();
 });
 
 function appendMessage(message) {
