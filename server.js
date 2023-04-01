@@ -1,6 +1,8 @@
 const express = require("express");
 const session = require("express-session");
+const { pool } = require("./quesriesDev");
 const { v4: uuidv4 } = require("uuid");
+const flash = require("express-flash");
 
 const app = express();
 const server = require("http").Server(app);
@@ -10,6 +12,7 @@ app.set("views", "views");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+app.use(flash());
 
 const sessionMiddleware = session({
   secret: "my-secret",
@@ -51,9 +54,22 @@ app.post("/room", (req, res) => {
   if (rooms[req.body.room] != null) {
     return res.redirect("/");
   }
+  // pool.query()
 
-  req.session.name = req.body.room;
-  res.redirect("/dashboard");
+  pool.query(
+    "INSERT INTO users (username) VALUES ($1) RETURNING *",
+    [req.body.room],
+    (error, results) => {
+      if (error && !`${error.detail}`.match(/already/)) {
+        console.log(error.detail);
+        req.flash("error", error.detail);
+        return res.redirect("/");
+      }
+      req.session.name = req.body.room;
+      console.log(`returning ${JSON.stringify(results)}`);
+      res.redirect("/dashboard");
+    }
+  );
 });
 
 app.get("/dashboard", (req, res) => {
@@ -154,4 +170,8 @@ function getNameBySocketId(obj, value) {
       return key;
     }
   }
+}
+
+function queryFunction() {
+  pool.query("");
 }
