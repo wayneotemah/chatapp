@@ -16,7 +16,7 @@ if (messageForm != null) {
       "send-chat-message",
       document.querySelector("#receiver").textContent,
       message,
-      localStorage.getItem("sessionId")
+      username
     );
     messageInput.value = "";
 
@@ -31,19 +31,21 @@ socket.on("room-created", (room) => {
 });
 
 socket.on("chat-message", (data) => {
-  if (data.name == document.querySelector("#receiver").textContent) {
-    appendMessage(`${data.message}`);
+  data = JSON.parse(data);
+  console.log(data);
+  if (data.senderName == document.querySelector("#receiver").textContent) {
+    appendMessage(data.message, data.time);
   } else {
     notifications(data.message, data.name);
   }
 });
 
-socket.on("user-connected", (name, rooms) => {
+socket.on("user-connected", (name, users) => {
   roomContainer.innerHTML = "";
-  Object.keys(rooms).forEach((room) => {
-    if (room != document.getElementById("username").textContent) {
-      if (!document.querySelector(`#${room}`)) {
-        appendUserJoinMessage(`${room}`);
+  users.forEach((user) => {
+    if (user.username != document.getElementById("username").textContent) {
+      if (!document.querySelector(`#${user.username}`)) {
+        appendUserJoinMessage(`${user.username}`);
       }
     }
   });
@@ -77,9 +79,9 @@ socket.on("messages-response", (messages) => {
   });
 });
 
-function appendMessage(message, tag = "friend_msg") {
+function appendMessage(message, time, tag = "friend_msg") {
   messageContainer.innerHTML += `<div class="message ${tag}">
-                                  <p>${message} <br /><span>12:18</span></p>
+                                  <p>${message} <br /><span>${time}</span></p>
                                 </div>`;
 }
 

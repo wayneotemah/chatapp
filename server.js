@@ -3,6 +3,7 @@ const session = require("express-session");
 const { pool } = require("./quesriesDev");
 const { v4: uuidv4 } = require("uuid");
 const flash = require("express-flash");
+const { log, timeStamp } = require("console");
 
 const app = express();
 const server = require("http").Server(app);
@@ -54,19 +55,16 @@ app.post("/room", (req, res) => {
   if (rooms[req.body.room] != null) {
     return res.redirect("/");
   }
-  // pool.query()
 
   pool.query(
     "INSERT INTO users (username) VALUES ($1) RETURNING *",
-    [req.body.room],
+    [req.body.room.trim()],
     (error, results) => {
       if (error && !`${error.detail}`.match(/already/)) {
-        console.log(error.detail);
         req.flash("error", error.detail);
         return res.redirect("/");
       }
       req.session.name = req.body.room;
-      console.log(`returning ${JSON.stringify(results)}`);
       res.redirect("/dashboard");
     }
   );
@@ -77,9 +75,8 @@ app.get("/dashboard", (req, res) => {
   if (!username) {
     return res.redirect("login");
   }
-  console.log(req.session.name);
-  //
-  res.render("chat", { rooms: users, roomName: username });
+
+  res.render("chat", { roomName: username });
 });
 
 app.get("/:room", (req, res) => {
@@ -98,12 +95,33 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
   socket.on("new-user", (name) => {
     const sessionId = socket.id;
-    users[name] = sessionId;
-    socket.emit("store-session", sessionId); // Send the session ID back to the client
-    io.sockets.emit("user-connected", name, users);
+    pool.query(
+      "UPDATE users SET socket_id = $1 WHERE username = $2 RETURNING *",
+      [sessionId, name],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+
+        getAllUsers((dbUsers) => {
+          socket.emit("store-session", sessionId); // Send the session ID back to the client
+          io.sockets.emit("user-connected", name, dbUsers);
+        });
+      }
+    );
   });
 
   socket.on("reconnect-user", (sessionId) => {
+    pool.query(
+      "SELECT username FROM users WHERE socket_id = $1",
+      [sessionId],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+      }
+    );
+
     const name = getUserBySessionId(sessionId); // Get the user's name based on their session ID
     if (name) {
       users[name] = sessionId;
@@ -115,27 +133,27 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send-chat-message", (receiver, message, sender) => {
-    const senderName = getNameBySocketId(users, sender);
+
+    const senderName = sender;
     const [name1, name2] = [receiver, senderName].sort();
-    const roomName = `${name1}-${name2}`;
+    const roomName = `${name1}_${name2}`;
+    var timeStamp = new Date();
 
-    // Create the room's message array if it doesn't exist
-    if (!messages[roomName]) {
-      messages[roomName] = [];
-    }
-
-    // Add the message to the room's message array
-    messages[roomName].push({
-      sender: senderName,
-      receiver: receiver,
-      message: message,
-      timestamp: new Date(),
-    });
-
-    socket.to(users[receiver]).emit("chat-message", {
-      message: message,
-      name: senderName,
-    });
+    pool.query(
+      "INSERT INTO messages (roomname,sender,receiver,message,timestamp) VALUES ($1,$2,$3,$4,$5) RETURNING *",
+      [roomName, senderName, receiver, message, timeStamp],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        getSessionIDbyUsername(receiver, (receiver_sessionId) => {
+          console.log(results.rows);
+          socket
+            .to(receiver_sessionId[0].socket_id)
+            .emit("chat-message", results.rows);
+        });
+      }
+    );
   });
 
   socket.on("messages-request", (sender, receiver) => {
@@ -172,6 +190,25 @@ function getNameBySocketId(obj, value) {
   }
 }
 
-function queryFunction() {
-  pool.query("");
+// queries
+function getAllUsers(cb) {
+  pool.query("SELECT username FROM users", (error, results) => {
+    if (error) {
+      throw error;
+    }
+    cb(results.rows);
+  });
+}
+
+function getSessionIDbyUsername(name, cb) {
+  pool.query(
+    "SELECT socket_id FROM users WHERE username = $1",
+    [name],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      cb(results.rows);
+    }
+  );
 }
