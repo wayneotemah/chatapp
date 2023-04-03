@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Whatsapp UI clone</title>
+    <title>moChat</title>
     <link rel="stylesheet" href="style.css" />
     <script defer src="/socket.io/socket.io.js"></script>
     <script defer src="script.js"></script>
@@ -13,12 +13,16 @@
   <body>
     <div class="container">
       <div class="leftSide">
-        <div id="username"><%= roomName %></div>
+        <div id="username" style="display: none"><%= roomName %></div>
         <!-- Header -->
 
         <div class="header">
           <div class="userimg">
-            <img src="images/user.jpg" alt="" class="cover" />
+            <img
+              src="https://fastly.picsum.photos/id/362/200/200.jpg?hmac=AKqfQ8tnyGapdUtZ1f35ugad3WkJY-g1tn5hi7kF2zY"
+              alt=""
+              class="cover"
+            />
           </div>
           <ul class="nav_icons">
             <li>

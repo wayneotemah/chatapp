@@ -102,8 +102,8 @@ io.on("connection", (socket) => {
         if (error) {
           throw error;
         }
-
         getAllUsers((dbUsers) => {
+          console.log(sessionId);
           socket.emit("store-session", sessionId); // Send the session ID back to the client
           io.sockets.emit("user-connected", name, dbUsers);
         });
@@ -111,29 +111,28 @@ io.on("connection", (socket) => {
     );
   });
 
-  socket.on("reconnect-user", (sessionId) => {
-    pool.query(
-      "SELECT username FROM users WHERE socket_id = $1",
-      [sessionId],
-      (error, results) => {
-        if (error) {
-          throw error;
-        }
-      }
-    );
+  // socket.on("reconnect-user", (sessionId) => {
+  //   pool.query(
+  //     "SELECT username FROM users WHERE socket_id = $1",
+  //     [sessionId],
+  //     (error, results) => {
+  //       if (error) {
+  //         throw error;
+  //       }
+  //     }
+  //   );
 
-    const name = getUserBySessionId(sessionId); // Get the user's name based on their session ID
-    if (name) {
-      users[name] = sessionId;
-      io.sockets.emit("user-reconnected", name, users);
-    } else {
-      // Handle the case where the user's session has expired or is invalid
-      socket.emit("session-expired");
-    }
-  });
+  //   const name = getUserBySessionId(sessionId); // Get the user's name based on their session ID
+  //   if (name) {
+  //     users[name] = sessionId;
+  //     io.sockets.emit("user-reconnected", name, users);
+  //   } else {
+  //     // Handle the case where the user's session has expired or is invalid
+  //     socket.emit("session-expired");
+  //   }
+  // });
 
   socket.on("send-chat-message", (receiver, message, sender) => {
-
     const senderName = sender;
     const [name1, name2] = [receiver, senderName].sort();
     const roomName = `${name1}_${name2}`;
@@ -147,10 +146,10 @@ io.on("connection", (socket) => {
           throw error;
         }
         getSessionIDbyUsername(receiver, (receiver_sessionId) => {
-          console.log(results.rows);
+          let messageObject = trimSpaces(results.rows);
           socket
-            .to(receiver_sessionId[0].socket_id)
-            .emit("chat-message", results.rows);
+            .to(receiver_sessionId[0].socket_id.trim())
+            .emit("chat-message", JSON.stringify(messageObject));
         });
       }
     );
@@ -158,11 +157,26 @@ io.on("connection", (socket) => {
 
   socket.on("messages-request", (sender, receiver) => {
     const [name1, name2] = [sender, receiver].sort();
-    const roomName = `${name1}-${name2}`;
+    const roomName = `${name1}_${name2}`;
 
-    io.to(users[sender]).emit(
-      "messages-response",
-      messages[roomName] ? messages[roomName] : []
+    pool.query(
+      "SELECT * FROM messages WHERE roomname = $1 Order by timestamp ASC",
+      [roomName],
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+
+        getSessionIDbyUsername(sender, (sender_sessionId) => {
+          // console.log(results.rows);
+          // console.log(roomName);
+
+          io.to(sender_sessionId[0].socket_id).emit(
+            "messages-response",
+            results.rows.length > 0 ? results.rows : []
+          );
+        });
+      }
     );
   });
 
@@ -196,7 +210,7 @@ function getAllUsers(cb) {
     if (error) {
       throw error;
     }
-    cb(results.rows);
+    cb(trimSpaces(results.rows));
   });
 }
 
@@ -208,7 +222,23 @@ function getSessionIDbyUsername(name, cb) {
       if (error) {
         throw error;
       }
-      cb(results.rows);
+      cb(trimSpaces(results.rows));
     }
   );
+}
+
+function trimSpaces(objectList) {
+  let finalList = [];
+  if (objectList.length <= 0) {
+    return [{}];
+  }
+  objectList.forEach((object) => {
+    let newObject = {};
+    console.log(object);
+    Object.entries(object).forEach(([key, value]) => {
+      newObject[key] = value.trim();
+    });
+    finalList.push(newObject);
+  });
+  return finalList;
 }

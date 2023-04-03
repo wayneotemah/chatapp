@@ -19,34 +19,34 @@ if (messageForm != null) {
       username
     );
     messageInput.value = "";
+    let date = new Date();
 
     messageContainer.innerHTML += `<div class="message my_msg">
-                                    <p>${message} <br /><span>12:18</span></p>
+                                    <p>${message} <br /><span>${
+      date.getHours() + ":" + date.getMinutes()
+    }</span></p>
                                   </div>`;
   });
 }
 
-socket.on("room-created", (room) => {
-  appendUserJoinMessage(room);
-});
-
 socket.on("chat-message", (data) => {
-  data = JSON.parse(data);
-  console.log(data);
-  if (data.senderName == document.querySelector("#receiver").textContent) {
-    appendMessage(data.message, data.time);
+  data = JSON.parse(data)[0];
+  let time = new Date(data.timestamp);
+  if (data.receiver == document.querySelector("#receiver").textContent) {
+    appendMessage(data.message, `${time.getHours() + ":" + time.getMinutes()}`);
   } else {
-    notifications(data.message, data.name);
+    notifications(data.message, data.sender);
   }
 });
 
 socket.on("user-connected", (name, users) => {
   roomContainer.innerHTML = "";
+  console.log(users);
+  console.log(name);
+  let yourself = false;
   users.forEach((user) => {
-    if (user.username != document.getElementById("username").textContent) {
-      if (!document.querySelector(`#${user.username}`)) {
-        appendUserJoinMessage(`${user.username}`);
-      }
+    if (!document.querySelector(`#${user.username}`)) {
+      appendUserJoinMessage(`${user.username}`, yourself);
     }
   });
 });
@@ -71,10 +71,19 @@ socket.on("user-disconnected", (name, users) => {
 
 socket.on("messages-response", (messages) => {
   messages.forEach((message) => {
+    let time = new Date(message.timestamp);
     if (message.sender == document.getElementById("username").textContent) {
-      appendMessage(message.message, (tag = "my_msg"));
+      appendMessage(
+        message.message,
+        `${time.getHours() + ":" + time.getMinutes()}`,
+        (tag = "my_msg")
+      );
     } else {
-      appendMessage(message.message, (tag = "friend_msg"));
+      appendMessage(
+        message.message,
+        `${time.getHours() + ":" + time.getMinutes()}`,
+        (tag = "friend_msg")
+      );
     }
   });
 });
@@ -85,23 +94,27 @@ function appendMessage(message, time, tag = "friend_msg") {
                                 </div>`;
 }
 
-function appendUserJoinMessage(name) {
+function appendUserJoinMessage(name, yourself = false) {
   roomContainer.innerHTML += `<div id = "${name}" class="block active">
                                 <div class="details">
                                     <div class="listHead">
-                                      <h4>${name}</h4>
+                                      <h4>${name}</h4> <span>${
+    name == document.getElementById("username").textContent ? "Yourself" : ""
+  }</span>
+                                     
                                     </div>
                                 </div>
                               </div>
                               `;
   [...document.querySelectorAll(".chatlist .block")].forEach((block) => {
     block.addEventListener("click", (e) => {
-      document.querySelector("#receiver").textContent =
-        e.target.textContent.trim();
+      document.querySelector("#receiver").textContent = e.target
+        .querySelector(".details .listHead h4")
+        .textContent.trim();
       socket.emit(
         "messages-request",
         document.getElementById("username").textContent,
-        e.target.textContent.trim()
+        e.target.querySelector("h4").textContent.trim()
       );
       messageContainer.innerHTML = "";
     });
