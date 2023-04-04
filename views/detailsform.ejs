@@ -14,7 +14,7 @@
     />
   </head>
   <body>
-    <form action="/room" method="POST" id="getUserName">
+    <form action="/room" method="POST" id="getUserName" autocomplete="off">
       <div class="mb-3">
         <% if (messages.error) {%>
         <div class="error-message"><%= messages.error %></div>

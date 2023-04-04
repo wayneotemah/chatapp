@@ -32,7 +32,7 @@ if (messageForm != null) {
 socket.on("chat-message", (data) => {
   data = JSON.parse(data)[0];
   let time = new Date(data.timestamp);
-  if (data.receiver == document.querySelector("#receiver").textContent) {
+  if (data.sender == document.querySelector("#receiver").textContent) {
     appendMessage(data.message, `${time.getHours() + ":" + time.getMinutes()}`);
   } else {
     notifications(data.message, data.sender);
