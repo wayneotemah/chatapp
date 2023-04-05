@@ -18,11 +18,22 @@
 
         <div class="header">
           <div class="userimg">
-            <img
-              src="https://fastly.picsum.photos/id/362/200/200.jpg?hmac=AKqfQ8tnyGapdUtZ1f35ugad3WkJY-g1tn5hi7kF2zY"
-              alt=""
-              class="cover"
-            />
+            <form action="#">
+              <input
+                type="text"
+                class="file-input"
+                id="file-upload"
+                accept="jpg,jpeg,png"
+                type="file"
+                name="file"
+                hidden
+              />
+              <img
+                src="https://fastly.picsum.photos/id/362/200/200.jpg?hmac=AKqfQ8tnyGapdUtZ1f35ugad3WkJY-g1tn5hi7kF2zY"
+                alt=""
+                class="cover"
+              />
+            </form>
           </div>
           <ul class="nav_icons">
             <li>
@@ -88,6 +99,13 @@
         </form>
       </div>
     </div>
+    <script>
+      const userimg = document.querySelector(".userimg");
+      const fileInput= document.querySelector(".file-input");
+      userimg.addEventListener("click",()=>{
+        fileInput.click();
+      })
+    </script>
 
     <script
       type="module"
